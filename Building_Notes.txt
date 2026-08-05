@@ -1,0 +1,124 @@
+Stage 1:
+Know how the application works
+Run it on local
+go build -o main .
+ls
+./main
+
+Stage 2:
+Building docker image 
+Instead of using ubuntu image and installing go lang (or any other application try choosing the direct application image itself) such as 
+golang:1.22.5  
+setup workdir 
+copy requirement.txt and run it 
+copy source code to the docker image 
+run the project 
+
+take distroless image 
+copy the main file from the base stage 
+copy the static files to store into ./static
+expose the port
+run the project 
+
+Build the image 
+run the image 
+push the docker image to registry
+
+
+Stage 3: 
+Create folder k8s > manifests > deployment.yml
+create a deployment file contains 1 container 1 replica set 
+
+Service.yml 
+create a service of type clusterIP
+
+Ingress.yml
+create a host based ingress nginx controller 
+
+Install kubectl, eksctl, aws cli
+
+
+eksctl create cluster --name go-web-app-cluster --region ap-south-1
+apply deployment
+check pods 
+apply service ingress file
+kubectl get ing
+
+kubectl edit svc go-web-app-service
+change type: NodePort
+kubectl get svc
+kubectl get nodes -o wide 
+externalIP:nodeport/courses 
+
+nginx ingress controller (GitHub community - aws - NLB)
+Ingress controller will watch ingress and creates Load Balancer 51 min 
+
+kubectl get pods -n ingress-nginx 
+
+kubectl get ing
+nslookup aa5fb88be02aa4f58a7f71d96c65cecc-628256880.ap-south-1.elb.amazonaws.com
+
+sudo vim /etc/hosts
+
+13.203.136.13 go-web-app.local
+
+Install helm 
+Create a helm folder >> helm create go-web-app-chart
+Remove everything from the template folder and paste your k8s manifest files there
+Remove everything from the values.yaml give values from the repo 
+
+Delete everything so we can deploy with the help of helm 
+>> kubectl get all 
+>> kubectl delete deploy go-web-app
+>> kubectl delete svc go-web-app
+>> kubectl delete ing go-web-app 
+
+update the deployment file 
+update the values file 
+go to the folder where chart.yml is present and run 
+>> helm install go-web-app .	
+>> helm uninstall go-web-app 
+
+
+CICD - CI (GitHub Actions) CD(Gitops/ArgoCD)
+CI - Build and unit test -> Static Code Analysis -> Docker image creation -> 
+CD - Helm (Updates values.yml) -> uploades to k8s 
+
+.GitHub/workflows-> ci.yaml
+For every stage you need a runner so you need to provide the images 
+
+Dockerhub - Account setting - Personal access token - crate access token - read & write 
+create a GitHub token  
+
+on: push: 
+paths-ignore:
+jobs: 
+Stage 1: build the go app -> test it 
+Stage 2: Code quality (golangci-lint)
+Stage 3: Push needs: build, docker buildx, login to dockerhub, build push action 
+Stage 4: update-newtag-in-helm-chart
+update tag in helm chart 
+commit and push 
+
+
+Install argocd and argocd ui 
+Get loadbalancer service IP
+>> kubectl get svc argocd-server -n argocd 
+      
+kubectl get secrets -n argocd 
+kubectl edit secrets initial admin -n argocd
+echo pass== | base64 --decode
+
+New app 
+go-web-app
+default project 
+sync policy - automatic, self heal
+repo link 
+path - 
+cluster url - default 
+namespace - default 
+Helm values files - values.yaml
+save
+
+Check everything is created 
+check web is running 
